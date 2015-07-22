@@ -229,8 +229,27 @@ Login.prototype.postLogin = function(req, res, next) {
 
       }
 
-      // looks like password is correct
+      // looks like password is correct...
+      
+      if (!user.adminApproved) {
+        // but admin hasn't approved the account yet!
+        error = 'Your account has not yet been approved.';
 
+        // send only JSON when REST is active
+        if (config.rest) {return res.json(403, {error: error}); }
+
+        // render view
+        res.status(403);
+        return res.render(view, {
+          title: 'Waiting for Approval',
+          action: that.loginRoute + suffix,
+          error: error,
+          login: login,
+          basedir: req.app.get('views')
+        });
+      }
+      
+      // and account has received approval from administrator!
       // shift tracking values
       var now = new Date();
 
