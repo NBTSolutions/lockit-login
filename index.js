@@ -294,6 +294,8 @@ Login.prototype.postLogin = function(req, res, next) {
             // redirect to target url
             return res.redirect(target);
           }
+          // not twoFactorEnabled and lockit is NOT handling response.
+          return; // assume response will be handled when handling the 'login' event emitted above.
         }
 
         // two-factor authentication is enabled
