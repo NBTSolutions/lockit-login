@@ -146,7 +146,15 @@ Login.prototype.postLogin = function(req, res, next) {
   adapter.find(query, login, function(err, user) {
     if (err) {return next(err); }
 
-    // no user or user email isn't verified yet -> render error message
+    // no user but an email address has been supplied -> check legacy ldap
+    if (!user) {
+      var email = req.body.email;
+      if (EMAIL_REGEXP.test(email)) {
+        that.emit('legacy::login', req, res, login, password, email);
+        return;
+      }
+    }
+    //user email isn't verified yet -> render error message
     if (!user || !user.emailVerified) {
       error = 'Invalid user or password';
 
